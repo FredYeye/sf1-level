@@ -1,3 +1,5 @@
+use std::num::NonZeroU8;
+
 use super::{stats::Id, rand::Rand};
 
 pub enum StatGainMethod {
@@ -7,47 +9,12 @@ pub enum StatGainMethod {
     Max,
 }
 
-pub enum Stats {
-    Attack,
-    Defense,
-    Agility,
-    Hp,
-    Mp,
-    Crit,
-}
-
-impl Stats {
-    fn idx_to_stats(idx: usize) -> Self {
-        match idx {
-            0 => Stats::Attack,
-            1 => Stats::Defense,
-            2 => Stats::Agility,
-            3 => Stats::Hp,
-            4 => Stats::Mp,
-            5 => Stats::Crit,
-
-            _ => unreachable!(),
-        }
-    }
-
-    pub fn stats_to_idx(&self) -> usize {
-        match self {
-            Stats::Attack  => 0,
-            Stats::Defense => 1,
-            Stats::Agility => 2,
-            Stats::Hp      => 3,
-            Stats::Mp      => 4,
-            Stats::Crit    => 5,
-        }
-    }
-}
-
 #[derive(Debug, Clone, Copy)]
 pub struct Character {
     pub id: Id,
     pub level: u8,
     pub stats: [u8; 6], //attack, defense, agility, hp, mp, crit
-    pub promoted: bool,
+    pub promoted_level: Option<NonZeroU8>,
 }
 
 impl Character {
@@ -62,47 +29,51 @@ impl Character {
         self.level += 1;
 
         for x in 0 .. 6 {
-            let stat = Stats::idx_to_stats(x);
+            // let stat = Stats::idx_to_stats(x);
 
-            let target = self.calculate_total_stat_growth(&stat);
-            let gain = self.calculate_stat_gain(target, &stat, rng, method);
+            let target = self.calculate_total_stat_growth(x);
+            let gain = self.calculate_stat_gain(target, x, rng, method);
 
             self.stats[x] += gain;
         }
     }
 
-    fn calculate_total_stat_growth(&self, stat: &Stats) -> u8 {
-        self.get_base_stat(stat) + self.calculate_growth_target(stat)
+    fn calculate_total_stat_growth(&self, stat: usize) -> u8 {
+        self.get_base_stat(stat) + self.calculate_growth_target(stat, self.level)
     }
 
-    fn get_base_stat(&self, stat: &Stats) -> u8 { //CalculatePromotedBaseStats
-        if self.promoted {
-            todo!()
+    fn get_base_stat(&self, stat: usize) -> u8 { //CalculatePromotedBaseStats
+        let base_stat = self.id.get_base(stat);
+
+        if let Some(level) = self.promoted_level {
+            // promoted base stat: 85% of (base stat + target growth of promotion level)
+            let promoted_base_stat = base_stat + self.calculate_growth_target(stat, level.into());
+            ((promoted_base_stat as u16 * 85) / 100) as u8
         } else { // get unpromoted base stat
-            self.id.get_base(stat)
+            base_stat
         }
     }
 
-    fn calculate_growth_target(&self, stat: &Stats) -> u8 {
-        let growth_percent = self.calculate_growth_percent(stat);
+    fn calculate_growth_target(&self, stat: usize, level: u8) -> u8 {
+        let growth_percent = self.calculate_growth_percent(stat, level);
         ((self.id.get_gain(stat) as u16 * growth_percent as u16) / 100) as u8
     }
 
-    fn calculate_growth_percent(&self, stat: &Stats) -> u8 {
-        if self.level == 20 {
+    fn calculate_growth_percent(&self, stat: usize, level: u8) -> u8 {
+        if level == 20 {
             100
         } else {
             let mut curve_idx = 0;
             let curve_points = self.id.get_curve(stat).curve_points();
 
             for x in 0 .. curve_points.len() {
-                if self.level <= curve_points[x + 1].0 {
+                if level <= curve_points[x + 1].0 {
                     curve_idx = x;
                     break;
                 }
             }
 
-            let inter = (self.level - curve_points[curve_idx].0) as u16;
+            let inter = (level - curve_points[curve_idx].0) as u16;
             let inter2 = (curve_points[curve_idx + 1].0 - curve_points[curve_idx].0) as u16;
             let inter3 = (curve_points[curve_idx + 1].1 - curve_points[curve_idx].1) as u16;
 
@@ -110,8 +81,8 @@ impl Character {
         }
     }
 
-    fn calculate_stat_gain(&self, target: u8, stat: &Stats, rng: &mut Rand, method: &StatGainMethod) -> u8 {
-        let stat_value = self.stats[stat.stats_to_idx()];
+    fn calculate_stat_gain(&self, target: u8, stat: usize, rng: &mut Rand, method: &StatGainMethod) -> u8 {
+        let stat_value = self.stats[stat];
 
         if target == 0 {
             0
