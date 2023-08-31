@@ -7,7 +7,7 @@ mod curve;
 
 #[derive(Debug)]
 pub struct Sf {
-    character: Character,
+    character: Character, //todo: should probably not be a part of this struct
     rng: Rand,
 }
 
@@ -99,5 +99,17 @@ impl Sf {
             }
             println!();
         }
+    }
+
+    pub fn promote_test(&mut self, level: u8) {
+        self.character.level = 0;
+
+        for x in 0 .. level {
+            self.character.increase_stats_on_level_up(&mut self.rng, &character::StatGainMethod::Target);
+        }
+
+        self.character.promote();
+
+        self.log_stats(&StatGainMethod::Target);
     }
 } 

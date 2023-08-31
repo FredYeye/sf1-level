@@ -643,12 +643,12 @@ impl Id {
         self.base_stats().base[stat]
     }
 
-    pub fn get_gain(&self, stat: usize) -> u8 {
-        self.base_stats().stat_gain[0][stat].gain
+    pub fn get_gain(&self, stat: usize, promoted: bool) -> u8 {
+        self.base_stats().stat_gain[promoted as usize][stat].gain
     }
 
-    pub fn get_curve(&self, stat: usize) -> Curve {
-        self.base_stats().stat_gain[0][stat].curve_type
+    pub fn get_curve(&self, stat: usize, promoted: bool) -> Curve {
+        self.base_stats().stat_gain[promoted as usize][stat].curve_type
     }
 
     pub fn character_from_id(&self) -> Character {
