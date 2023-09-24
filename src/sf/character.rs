@@ -40,12 +40,12 @@ impl Character {
         self.get_base_stat(stat) + self.calculate_growth_target(stat, self.level, promoted)
     }
 
-    fn get_base_stat(&self, stat: usize) -> u8 { //CalculatePromotedBaseStats
+    pub fn get_base_stat(&self, stat: usize) -> u8 { //CalculatePromotedBaseStats
         let base_stat = self.id.get_base(stat);
 
-        if let Some(level) = self.promoted_level {
+        if let Some(promoted_level) = self.promoted_level {
             // promoted base stat: 85% of (base stat + target growth of promotion level)
-            let promoted_base_stat = base_stat + self.calculate_growth_target(stat, level.into(), false);
+            let promoted_base_stat = base_stat + self.calculate_growth_target(stat, promoted_level.into(), false);
             ((promoted_base_stat as u16 * 85) / 100) as u8
         } else { // get unpromoted base stat
             base_stat

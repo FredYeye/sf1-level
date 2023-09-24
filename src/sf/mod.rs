@@ -1,3 +1,5 @@
+use std::collections::{HashMap, BTreeMap};
+
 use self::{character::{Character, StatGainMethod}, rand::Rand, stats::Id};
 
 pub mod rand;
@@ -17,13 +19,21 @@ impl Sf {
     }
 
     pub fn log_stats(&mut self, method: &StatGainMethod) {
-        self.character.level = 0;
-
         let mut stats = [[0; 6]; 20];
 
-        for x in 0 .. 20 {
+        //todo: make this if-else a function and use elsewhere
+        if self.character.promoted_level.is_some() {
+            self.character.level = 1;
+            for x in 0..6 {
+                stats[0][x] = self.character.get_base_stat(x);
+            }
+        } else {
+            self.character.level = 0;
+        }
+
+        for x in self.character.level .. 20 {
             self.character.increase_stats_on_level_up(&mut self.rng, method);
-            stats[x] = self.character.stats;
+            stats[x as usize] = self.character.stats;
         }
 
         println!("{:?}", self.character.id);
@@ -112,4 +122,33 @@ impl Sf {
 
         self.log_stats(&StatGainMethod::Target);
     }
+
+    pub fn speed_test(&mut self) {
+        // use std::collections::HashMap;
+        let mut colle: BTreeMap<u8, u16> = BTreeMap::new();
+
+        let agi = 49;
+        let variance = ((agi as u16 * 51 + 128) / 256) as u8;
+
+        let min = agi - variance - 1;
+        let max = agi + variance + 1;
+
+        println!("{}-{} ({})\n", min, max, variance);
+
+        let count = 65535;
+
+        for _ in 0 .. count {
+            let mut result = agi - variance;
+            result += self.rng.get(variance + 1) + self.rng.get(variance + 1);
+            result = (result as i8 + (self.rng.get(3) as i8 - 1)) as u8;
+
+            colle.entry(result).and_modify(|counter| *counter += 1).or_insert(1);
+        }
+
+        for (k, v) in colle {
+            let percent = v as f32 / (count as f32 / 100.0);
+            println!("{}: {:.2}", k, percent);
+        }
+    }
+    
 } 

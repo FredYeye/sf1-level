@@ -47,43 +47,78 @@ fn main() {
         println!("{help}");
     }
 
-    // let _ = test();
+    // let mut sf = Sf::init(Id::Max, 0);
+    // sf.promote_test(10);
+
+    // let mut sf = Sf::init(Id::Max, 0);
+    // sf.speed_test();
+
+    // resist();
 }
 
-// fn test() -> Result<(), Box<dyn std::error::Error>> {
-//     let attack = [ 6,  7,  9, 11, 11, 12, 13, 13, 13, 14, 14, 15, 15, 16, 17, 17, 19, 20, 21, 23];
-//     let min    = [ 6,  7,  8, 10, 11, 11, 12, 13, 13, 13, 14, 14, 15, 15, 16, 17, 17, 19, 20, 21];
-//     let max    = [ 6,  7, 10, 12, 12, 14, 15, 15, 15, 16, 16, 17, 17, 19, 20, 20, 22, 24, 25, 27];
+fn resist() {
+    let spell_multiplier = [100, 75, 50, 125];
+    let resist_chance = [37, 18, 0, 46];
+    let resist = 0x838d;
 
-//     let root = BitMapBackend::new("0.png", (800, 800)).into_drawing_area();
-//     root.fill(&WHITE)?;
-//     let mut chart = ChartBuilder::on(&root)
-//         .caption("attack", ("sans-serif", 50).into_font())
-//         .margin(10)
-//         .x_label_area_size(30)
-//         .y_label_area_size(30)
-//         .build_cartesian_2d(1..20, 0..27)?;
+    let mut fix = [0; 8];
 
-//     chart.configure_mesh().draw()?;
+    for x in 0..8 {
+        fix[x] = (resist >> (x * 2)) & 0b11;
+    }
 
-//     chart
-//         .draw_series(LineSeries::new(
-//             attack.iter().enumerate().map(|(idx, x)| (idx as i32 + 1, *x as i32)),
-//             RED.filled(),
-//         ).point_size(2))?;
+    if fix[6] > 0 {
+        println!("omg");
+    }
 
-//     chart
-//         .draw_series(attack.iter().enumerate().map(|f| {
-//             ErrorBar::new_vertical(f.0 as i32 + 1, min[f.0], *f.1, max[f.0], BLUE.filled(), 10)
-//         }))?;
+    // println!("Blaze | Freeze | Bolt | Sleep/Desoul | Muddle | Slow |");
+    println!("{:<6}| {:<7}| {:<5}| {:<13}| {:<7}| {:<4} | {:<2}| {:<5} |",
+    spell_multiplier[fix[0]], spell_multiplier[fix[1]], spell_multiplier[fix[2]],
+    resist_chance[fix[3]], resist_chance[fix[4]], resist_chance[fix[5]],
+    fix[6], fix[7]);
 
-//     chart
-//         .configure_series_labels()
-//         .background_style(&WHITE.mix(0.8))
-//         .border_style(&BLACK)
-//         .draw()?;
 
-//     root.present()?;
+    // CLASS_RESIST_SLEEP_AND_DESOUL: equ $3
 
-//     Ok(())
-// }
+    // ; enum ClassEntry_Resistances
+    // CLASS_RESIST_BLAZE: equ $0
+    // CLASS_RESIST_FREEZE: equ $1
+    // CLASS_RESIST_BOLT: equ $2
+    // CLASS_RESIST_SLEEP_AND_DESOUL: equ $3
+    // CLASS_RESIST_MUDDLE: equ $4
+    // CLASS_RESIST_SLOW: equ $5
+    // CLASS_RESIST_6: equ $6
+    // CLASS_RESIST_EVASION: equ $7
+    
+    // u16 res
+    // 3 & 0b111
+    // res ror 3
+    // res ror 3
+    // res & 0b11
+    
+    
+    
+    
+    
+    
+    // sub_212FA (d2 = resist)
+    //   GetTargetResistance (d1 = resist)
+    //     GetResistance
+    
+    
+    // StatusResistPercents:
+    //         dc.b 100 = 37%
+    //         dc.b 50  = 18%
+    //         dc.b 0   = 0%
+    //         dc.b 125 = 46%
+    
+    // (SRP * 37) / 100
+    
+    // ---------------------------
+    
+    // ElemResistPercents:
+    //         dc.b 100
+    //         dc.b 75
+    //         dc.b 50
+    //         dc.b 125
+}

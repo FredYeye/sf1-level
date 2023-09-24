@@ -14,3 +14,5 @@ impl Curve {
         }
     }
 }
+
+//todo: pre-compute curves

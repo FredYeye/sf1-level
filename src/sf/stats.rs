@@ -68,9 +68,9 @@ impl Id {
                     StatGain { gain:  4, curve_type: Curve::EarlyLate },
                     StatGain { gain:  4, curve_type: Curve::Linear    },
                 ], [
-                    StatGain { gain: 23, curve_type: Curve::EarlyLate },
-                    StatGain { gain: 48, curve_type: Curve::EarlyLate },
-                    StatGain { gain: 35, curve_type: Curve::EarlyLate },
+                    StatGain { gain: 23, curve_type: Curve::Linear    },
+                    StatGain { gain: 48, curve_type: Curve::Linear    },
+                    StatGain { gain: 35, curve_type: Curve::Early     },
                     StatGain { gain: 46, curve_type: Curve::Linear    },
                     StatGain { gain:  2, curve_type: Curve::EarlyLate },
                     StatGain { gain:  8, curve_type: Curve::Linear    },
