@@ -61,25 +61,17 @@ impl Sfcd {
 
             return res;
         } else { // level 20
-            // todo: this part is untested!
-
-            let level2 = 99 - level;
-            let mut stat2 = stat[1] as i16 - current_stat as i16;
-            stat2 <<= 4;
-            stat2 /= level2 as i16;
+            let level_max_current_diff = 99 - level;
+            let stat_max_current_diff = stat[1] - current_stat;
             
-            let rng_add = self.rng.get(4);
-            let rng_sub = self.rng.get(4);
-
-            stat2 = stat2 + rng_add as i16 - rng_sub as i16;
+            let mut stat_diff_4_4 = stat_max_current_diff << 4;
+            stat_diff_4_4 /= level_max_current_diff; // level diff is essentially 16 times smaller here
             
-            let res = if stat2 as i8 <= 0 {
-                0
-            } else {
-                (stat2 + 8) >> 4 // 8 = 0.5 in 4.4fp | round up >= .5
-            };
+            // ± "bell curve" 3/16
+            stat_diff_4_4 += self.rng.get(4);
+            stat_diff_4_4 = stat_diff_4_4.saturating_sub(self.rng.get(4));
 
-            return res as u8;
+            (stat_diff_4_4 + 8) >> 4 // 8 = 0.5 in 4.4fp | round up >= .5
         }
     }
 }
