@@ -1,4 +1,4 @@
-use std::collections::{HashMap, BTreeMap};
+use std::collections::BTreeMap;
 
 use self::{character::{Character, StatGainMethod}, rand::Rand, stats::Id};
 
@@ -124,10 +124,9 @@ impl Sf {
     }
 
     pub fn speed_test(&mut self) {
-        // use std::collections::HashMap;
         let mut colle: BTreeMap<u8, u16> = BTreeMap::new();
 
-        let agi = 49;
+        let agi = 6;
         let variance = ((agi as u16 * 51 + 128) / 256) as u8;
 
         let min = agi - variance - 1;
@@ -149,6 +148,5 @@ impl Sf {
             let percent = v as f32 / (count as f32 / 100.0);
             println!("{}: {:.2}", k, percent);
         }
-    }
-    
+    }    
 } 

@@ -1,11 +1,19 @@
-// use plotters::prelude::*;
 use sf::{Sf, stats::Id};
+use sfcd::Sfcd;
 
 use crate::sf::character::StatGainMethod;
 
 mod sf;
+mod sfcd;
+
 
 fn main() {
+    if true {
+        let mut sfcd = Sfcd::init(0);
+        sfcd.calculate_stat_gain(1);
+        return
+    }
+
     let args: Vec<String> = std::env::args().collect();
 
     let help = concat!(
@@ -54,6 +62,17 @@ fn main() {
     // sf.speed_test();
 
     // resist();
+
+    for id in Id::get_ids() {
+        let stat_order = [(3, 0), (4, 1), (5, 2)];
+        println!("{:?}", id);
+        for (l, r) in stat_order {
+            let l2 = id.get_curve(l, true);
+            let r2 = id.get_curve(r, true);
+            println!("{:?}, {:?}", l2, r2);
+        }
+        println!();
+    }
 }
 
 fn resist() {
@@ -95,7 +114,6 @@ fn resist() {
     // res ror 3
     // res ror 3
     // res & 0b11
-    
     
     
     
